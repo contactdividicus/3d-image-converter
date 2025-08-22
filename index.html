@@ -1,0 +1,739 @@
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Image Converter Pro</title>
+    <style>
+        :root {
+            --primary-color: #00BCD4;
+            --secondary-color: #FF4081;
+            --background-color: #121212;
+            --text-color: #FFFFFF;
+            --tab-active-color: #1E88E5;
+            --metallic-gradient: linear-gradient(145deg, #2196F3, #03A9F4);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            flex-grow: 1;
+        }
+
+        header {
+            background: var(--metallic-gradient);
+            color: var(--text-color);
+            text-align: center;
+            padding: 30px 0;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.8em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        .upload-section, .preview-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-color);
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.3);
+        }
+
+        button {
+            background: var(--metallic-gradient);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 5px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            font-weight: 500;
+        }
+
+        .tab:hover, .tab.active {
+            background: var(--metallic-gradient);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #format-select, #text-input, #height, #body-type, #skin-color, #hair-style, #hair-color {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1em;
+        }
+
+        #image-cropper {
+            width: 100%;
+            height: 300px;
+            border: 1px solid var(--primary-color);
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #preview-container {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            height: 400px;
+        }
+
+        #download-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #download-list li {
+            margin-bottom: 10px;
+        }
+
+        #download-list a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        #download-list a:hover {
+            color: var(--secondary-color);
+        }
+
+        #download-all-btn {
+            background: var(--metallic-gradient);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        #download-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #human-model-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #human-model-form label {
+            font-weight: bold;
+        }
+
+        #human-model-form input,
+        #human-model-form select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        #generate-human-model {
+            margin-top: 20px;
+        }
+
+        /* Add styles for the photo gallery */
+        #photo-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gallery-img {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .gallery-img.selected {
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1 0 calc(50% - 10px);
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>3D Image Converter Pro</h1>
+    </header>
+    <div class="container">
+        <main>
+            <section class="upload-section">
+                <div class="tabs">
+                    <button class="tab active" data-tab="upload">Image Upload</button>
+                    <button class="tab" data-tab="format">File Format</button>
+                    <button class="tab" data-tab="crop">Image Crop</button>
+                    <button class="tab" data-tab="text">Text to 3D</button>
+                    <button class="tab" data-tab="downloads">Downloads</button>
+                    <button class="tab" data-tab="human">Human Model</button>
+                    <button class="tab" data-tab="photo-elements">Photo Elements</button>
+                </div>
+
+                <div id="upload-tab" class="tab-content active">
+                    <h2>Upload Your Image</h2>
+                    <div class="upload-area" id="upload-area" role="button" tabindex="0" aria-label="Upload image">
+                        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p>Click or drag and drop your image here</p>
+                    </div>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                </div>
+
+                <div id="format-tab" class="tab-content">
+                    <h2>Choose Output Format</h2>
+                    <select id="format-select" title="select value">
+                        <option value="stl">STL</option>
+                        <option value="obj">OBJ</option>
+                        <option value="fbx">FBX</option>
+                        <option value="gltf">glTF</option>
+                    </select>
+                </div>
+
+                <div id="crop-tab" class="tab-content">
+                    <h2>Crop Image</h2>
+                    <div id="image-cropper"></div>
+                    <button id="crop-btn">Apply Crop</button>
+                </div>
+
+                <div id="text-tab" class="tab-content">
+                    <h2>Text to 3D Model</h2>
+                    <textarea id="text-input" rows="4" placeholder="Enter text to generate 3D model"></textarea>
+                </div>
+
+                <div id="human-tab" class="tab-content">
+                    <h2>Create Human Model</h2>
+                    <form id="human-model-form">
+                        <label for="height">Height (cm):</label>
+                        <input type="number" id="height" name="height" min="100" max="250" value="170">
+                        
+                        <label for="body-type">Body Type:</label>
+                        <select id="body-type" name="body-type">
+                            <option value="average">Average</option>
+                            <option value="slim">Slim</option>
+                            <option value="muscular">Muscular</option>
+                        </select>
+                        
+                        <label for="skin-color">Skin Color:</label>
+                        <input type="color" id="skin-color" name="skin-color" value="#FFA07A">
+                        
+                        <label for="hair-style">Hair Style:</label>
+                        <select id="hair-style" name="hair-style">
+                            <option value="short">Short</option>
+                            <option value="long">Long</option>
+                            <option value="bald">Bald</option>
+                        </select>
+                        
+                        <label for="hair-color">Hair Color:</label>
+                        <input type="color" id="hair-color" name="hair-color" value="#8B4513">
+                        
+                        <button type="button" id="generate-human-model">Generate Human Model</button>
+                    </form>
+                </div>
+
+                <div id="photo-elements-tab" class="tab-content">
+                    <h2>Add Elements from Photos</h2>
+                    <div id="photo-gallery">
+                        <img src="/a/29058561-e63f-4cc6-a616-a0acfe387e3d" alt="Capture 002" width="100" height="100" class="gallery-img">
+                        <img src="/a/5b62a482-bb8f-4d5d-829e-c417d0dcd2f8" alt="Poser" width="100" height="100" class="gallery-img">
+                        <img src="/a/446054a6-6b74-40d4-9812-64d7c0f742b1" alt="Mocap" width="100" height="100" class="gallery-img">
+                    </div>
+                    <button id="add-element-btn">Add Selected Element</button>
+                </div>
+
+                <div id="downloads-tab" class="tab-content">
+                    <h2>Download 3D Models</h2>
+                    <ul id="download-list">
+                        <!-- Downloads will be added here dynamically -->
+                    </ul>
+                    <button id="download-all-btn">Download All Files</button>
+                </div>
+
+                <button id="convert-btn" style="margin-top: 20px;">Convert to 3D</button>
+            </section>
+            <section class="preview-section">
+                <h2>3D Preview</h2>
+                <div id="preview-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/FBXExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+    <script>
+        function float32ArrayToUint8Array(float32Array) {
+            return new Uint8Array(float32Array.buffer);
+        }
+
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const convertBtn = document.getElementById('convert-btn');
+        const previewContainer = document.getElementById('preview-container');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const formatSelect = document.getElementById('format-select');
+        const textInput = document.getElementById('text-input');
+        const cropBtn = document.getElementById('crop-btn');
+        const downloadAllBtn = document.getElementById('download-all-btn');
+        let downloadList = [];
+        const downloadListElement = document.getElementById('download-list');
+
+        let scene, camera, renderer, geometry, material, mesh;
+        let cropper;
+
+        // Add new variables
+        let selectedPhotoElement = null;
+        const photoGallery = document.getElementById('photo-gallery');
+        const addElementBtn = document.getElementById('add-element-btn');
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, previewContainer.clientWidth / previewContainer.clientHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(previewContainer.clientWidth, previewContainer.clientHeight);
+            previewContainer.appendChild(renderer.domElement);
+
+            camera.position.z = 5;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (mesh && mesh.rotation) {
+                mesh.rotation.x += 0.01;
+                mesh.rotation.y += 0.01;
+            }
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        async function convertToFormat(format) {
+            let result;
+            switch (format) {
+                case 'stl':
+                    const stlExporter = new THREE.STLExporter();
+                    result = stlExporter.parse(scene, { binary: true });
+                    return new Blob([result], {type: 'application/octet-stream'});
+                case 'obj':
+                    const objExporter = new THREE.OBJExporter();
+                    result = objExporter.parse(scene);
+                    return new Blob([result], {type: 'text/plain'});
+                case 'fbx':
+                    const fbxExporter = new THREE.FBXExporter();
+                    result = fbxExporter.parse(scene);
+                    return new Blob([result], {type: 'application/octet-stream'});
+                case 'gltf':
+                    return new Promise((resolve) => {
+                        const gltfExporter = new THREE.GLTFExporter();
+                        gltfExporter.parse(scene, (gltf) => {
+                            resolve(new Blob([JSON.stringify(gltf)], {type: 'application/json'}));
+                        }, { binary: false });
+                    });
+                default:
+                    return null;
+            }
+        }
+
+        async function convertTo3D(imageUrl) {
+            const loader = new THREE.TextureLoader();
+            loader.load(imageUrl, async (texture) => {
+                geometry = new THREE.BoxGeometry(3, 3, 3);
+                material = new THREE.MeshBasicMaterial({ map: texture });
+                mesh = new THREE.Mesh(geometry, material);
+                scene.add(mesh);
+
+                anime({
+                    targets: mesh.scale,
+                    x: [0, 1],
+                    y: [0, 1],
+                    z: [0, 1],
+                    duration: 1500,
+                    easing: 'easeOutElastic(1, .5)'
+                });
+
+                new Howl({
+                    src: ['https://example.com/success-sound.mp3'],
+                    volume: 0.5
+                }).play();
+
+                const selectedFormat = formatSelect.value;
+                const modelBlob = await convertToFormat(selectedFormat);
+                if (modelBlob) {
+                    const modelUrl = URL.createObjectURL(modelBlob);
+                    const fileName = `model_${Date.now()}.${selectedFormat}`;
+                    downloadList.push({name: fileName, url: modelUrl, format: selectedFormat});
+                    updateDownloadList();
+                }
+            });
+        }
+
+        function updateDownloadList() {
+            downloadListElement.innerHTML = '';
+            downloadList.forEach((item, index) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = item.url;
+                a.download = item.name;
+                a.textContent = `Download ${item.format.toUpperCase()} Model ${index + 1}`;
+                li.appendChild(a);
+                downloadListElement.appendChild(li);
+            });
+        }
+
+        function downloadAllFiles() {
+            downloadList.forEach(item => {
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.download = item.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                fileInput.click();
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '';
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFile(file);
+        });
+
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    convertTo3D(e.target.result);
+                    initCropper(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function initCropper(imageUrl) {
+            const imageCropper = document.getElementById('image-cropper');
+            imageCropper.innerHTML = `<img src="${imageUrl}" style="max-width: 100%;">`;
+            const image = imageCropper.querySelector('img');
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+            });
+        }
+
+        cropBtn.addEventListener('click', () => {
+            if (cropper) {
+                const croppedCanvas = cropper.getCroppedCanvas();
+                convertTo3D(croppedCanvas.toDataURL());
+            }
+        });
+
+        convertBtn.addEventListener('click', async () => {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab.id === 'upload-tab') {
+                if (fileInput.files.length > 0) {
+                    handleFile(fileInput.files[0]);
+                }
+            } else if (activeTab.id === 'text-tab') {
+                const text = textInput.value;
+                if (text) {
+                    const loader = new THREE.FontLoader();
+                    loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+                        const textGeometry = new THREE.TextGeometry(text, {
+                            font: font,
+                            size: 0.5,
+                            height: 0.1,
+                            curveSegments: 12,
+                            bevelEnabled: true,
+                            bevelThickness: 0.03,
+                            bevelSize: 0.02,
+                            bevelOffset: 0,
+                            bevelSegments: 5
+                        });
+                        const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+                        mesh = new THREE.Mesh(textGeometry, textMaterial);
+                        
+                        if (scene.children.length > 0) {
+                            scene.remove(scene.children[0]);
+                        }
+
+                        scene.add(mesh);
+                        
+                        const light = new THREE.PointLight(0xffffff, 1, 100);
+                        light.position.set(0, 0, 10);
+                        scene.add(light);
+
+                        convertToSelectedFormat();
+                    });
+                }
+            } else if (activeTab.id === 'human-tab') {
+                generateHumanModel();
+            } else if (activeTab.id === 'photo-elements-tab') {
+                if (selectedPhotoElement) {
+                    addPhotoElementToScene(selectedPhotoElement);
+                }
+            }
+        });
+
+        function generateHumanModel() {
+            const height = parseFloat(document.getElementById('height').value) / 100;
+            const bodyType = document.getElementById('body-type').value;
+            const skinColor = document.getElementById('skin-color').value;
+            const hairStyle = document.getElementById('hair-style').value;
+            const hairColor = document.getElementById('hair-color').value;
+
+            if (mesh) {
+                scene.remove(mesh);
+            }
+
+            const bodyGeometry = new THREE.CylinderGeometry(height * 0.15, height * 0.1, height * 0.5, 32);
+            const bodySideMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
+            const bodyTopMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
+            const bodyMaterials = [bodySideMaterial, bodyTopMaterial, bodyTopMaterial];
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterials);
+
+            const headGeometry = new THREE.SphereGeometry(height * 0.1, 32, 32);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = height * 0.35;
+
+            let hair;
+            if (hairStyle !== 'bald') {
+                const hairGeometry = hairStyle === 'short' ? 
+                    new THREE.SphereGeometry(height * 0.105, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2) : 
+                    new THREE.SphereGeometry(height * 0.11, 32, 32);
+                const hairMaterial = new THREE.MeshPhongMaterial({ color: hairColor });
+                hair = new THREE.Mesh(hairGeometry, hairMaterial);
+                hair.position.y = height * 0.36;
+            }
+
+            const armGeometry = new THREE.CylinderGeometry(height * 0.03, height * 0.03, height * 0.3, 32);
+            const armMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-height * 0.2, height * 0.1, 0);
+            leftArm.rotation.z = Math.PI / 18;
+            const rightArm = leftArm.clone();
+            rightArm.position.set(height * 0.2, height * 0.1, 0);
+            rightArm.rotation.z = -Math.PI / 18;
+
+            const legGeometry = new THREE.CylinderGeometry(height * 0.05, height * 0.05, height * 0.3, 32);
+            const legMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-height * 0.1, -height * 0.35, 0);
+            const rightLeg = leftLeg.clone();
+            rightLeg.position.set(height * 0.1, -height * 0.35, 0);
+
+            mesh = new THREE.Group();
+            mesh.add(body, head, leftArm, rightArm, leftLeg, rightLeg);
+            if (hair) mesh.add(hair);
+
+            if (bodyType === 'slim') {
+                mesh.scale.set(0.8, 1, 0.8);
+            } else if (bodyType === 'muscular') {
+                mesh.scale.set(1.2, 1, 1.2);
+            }
+
+            scene.add(mesh);
+
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(0, 0, 10);
+            scene.add(light);
+
+            camera.position.set(0, height / 2, 2);
+            camera.lookAt(0, height / 2, 0);
+
+            convertToSelectedFormat();
+        }
+
+        async function convertToSelectedFormat() {
+            const selectedFormat = formatSelect.value;
+            const modelBlob = await convertToFormat(selectedFormat);
+            if (modelBlob) {
+                const modelUrl = URL.createObjectURL(modelBlob);
+                const fileName = `human_model_${Date.now()}.${selectedFormat}`;
+                downloadList.push({name: fileName, url: modelUrl, format: selectedFormat});
+                updateDownloadList();
+            }
+        }
+
+        // Add event listeners for photo selection
+        photoGallery.addEventListener('click', (e) => {
+            if (e.target.classList.contains('gallery-img')) {
+                photoGallery.querySelectorAll('.gallery-img').forEach(img => img.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedPhotoElement = e.target.src;
+            }
+        });
+
+        // Add event listener for adding the selected element
+        addElementBtn.addEventListener('click', () => {
+            if (selectedPhotoElement) {
+                addPhotoElementToScene(selectedPhotoElement);
+            }
+        });
+
+        // Function to add photo element to the 3D scene
+        function addPhotoElementToScene(photoUrl) {
+            const loader = new THREE.TextureLoader();
+            loader.load(photoUrl, (texture) => {
+                const aspectRatio = texture.image.width / texture.image.height;
+                const geometry = new THREE.PlaneGeometry(1 * aspectRatio, 1);
+                const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+                const photoMesh = new THREE.Mesh(geometry, material);
+                
+                // Position the photo element
+                photoMesh.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
+                
+                // Add the photo element to the scene
+                scene.add(photoMesh);
+                
+                // Animate the photo element
+                anime({
+                    targets: photoMesh.scale,
+                    x: [0, 1],
+                    y: [0, 1],
+                    duration: 1000,
+                    easing: 'easeOutElastic(1, .5)'
+                });
+            });
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        downloadAllBtn.addEventListener('click', downloadAllFiles);
+
+        initThreeJS();
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = previewContainer.clientWidth / previewContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(previewContainer.clientWidth, previewContainer.clientHeight);
+        });
+    </script>
+</body></html>
